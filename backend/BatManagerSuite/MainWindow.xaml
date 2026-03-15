@@ -1,0 +1,358 @@
+<Window x:Class="BatManagerSuite.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BatManagerSuite"
+        mc:Ignorable="d"
+        Title="добрый запрет" Height="650" Width="950"
+        WindowStartupLocation="CenterScreen">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />   <!-- Header -->
+            <RowDefinition Height="Auto" />   <!-- Main button -->
+            <RowDefinition Height="Auto" />   <!-- Mode switcher -->
+            <RowDefinition Height="*" />      <!-- Tabs -->
+            <RowDefinition Height="26" />     <!-- Status bar -->
+        </Grid.RowDefinitions>
+
+        <!-- Шапка как во frontend -->
+        <Grid Grid.Row="0" Margin="20 10 20 10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="добрый запрет"
+                       FontSize="28"
+                       FontWeight="Bold"
+                       Foreground="#111827"
+                       VerticalAlignment="Center" />
+            <Border Grid.Column="1"
+                    Background="#f97316"
+                    CornerRadius="999"
+                    Width="32"
+                    Height="32"
+                    VerticalAlignment="Center"
+                    Margin="10 0 0 0">
+                <TextBlock Text="🍊"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           FontSize="18" />
+            </Border>
+        </Grid>
+
+        <!-- Центральная круглая кнопка -->
+        <Grid Grid.Row="1" Margin="0 0 0 10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid HorizontalAlignment="Center" Margin="0 10 0 4">
+                <Border Width="220"
+                        Height="220"
+                        CornerRadius="110"
+                        Background="#f97316"
+                        Opacity="0.15" />
+                <Border Width="200"
+                        Height="200"
+                        CornerRadius="100"
+                        Background="#111827">
+                    <Button Command="{Binding CheckAllCommand}"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Cursor="Hand">
+                        <Grid>
+                            <Ellipse Width="120"
+                                     Height="120"
+                                     Fill="#10ffffff" />
+                            <Path Data="M18.36 6.64a9 9 0 1 1-12.73 0"
+                                  Stroke="White"
+                                  StrokeThickness="3"
+                                  StrokeEndLineCap="Round"
+                                  StrokeStartLineCap="Round"
+                                  Stretch="None"
+                                  RenderTransformOrigin="0.5,0.5" />
+                            <Line X1="0" Y1="20" X2="0" Y2="-20"
+                                  Stroke="White"
+                                  StrokeThickness="3"
+                                  StrokeEndLineCap="Round"
+                                  StrokeStartLineCap="Round"
+                                  RenderTransformOrigin="0.5,0.5">
+                                <Line.RenderTransform>
+                                    <RotateTransform Angle="90" />
+                                </Line.RenderTransform>
+                            </Line>
+                        </Grid>
+                    </Button>
+                </Border>
+            </Grid>
+
+            <TextBlock Grid.Row="1"
+                       Text="{Binding CurrentMode, FallbackValue=Ожидание}"
+                       HorizontalAlignment="Center"
+                       Foreground="#4b5563"
+                       FontSize="14" />
+        </Grid>
+
+        <!-- Переключатель режимов deep / fast -->
+        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Margin="0 0 0 10">
+            <Border CornerRadius="999"
+                    Background="#e5e7eb"
+                    Padding="4"
+                    MinWidth="180">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0"
+                            Content="deep"
+                            Margin="2"
+                            Padding="8 4"
+                            Background="#111827"
+                            Foreground="White"
+                            BorderBrush="Transparent"
+                            FontWeight="SemiBold"
+                            Cursor="Hand" />
+                    <Button Grid.Column="1"
+                            Content="fast"
+                            Margin="2"
+                            Padding="8 4"
+                            Background="Transparent"
+                            Foreground="#374151"
+                            BorderBrush="Transparent"
+                            Cursor="Hand" />
+                </Grid>
+            </Border>
+        </StackPanel>
+
+        <!-- Основное содержимое: вкладки -->
+        <TabControl Grid.Row="3" Margin="10 0 10 0">
+            <!-- Дашборд -->
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="📊" Margin="0 0 4 0" />
+                        <TextBlock Text="Дашборд" />
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Orientation="Horizontal" Margin="0 0 0 10">
+                        <TextBlock Text="Версия приложения:" FontWeight="Bold" />
+                        <TextBlock Text=" " />
+                        <TextBlock Text="{Binding Version, FallbackValue=1.0.0}" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0 0 0 10">
+                        <TextBlock Text="Статус:" FontWeight="Bold" />
+                        <TextBlock Text=" " />
+                        <TextBlock Text="{Binding CurrentMode}" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0 0 0 10">
+                        <Button Content="Проверить обновления"
+                                Width="180"
+                                IsEnabled="False" />
+                        <TextBlock Text="  (логика обновлений выполняется автоматически при запуске)"
+                                   VerticalAlignment="Center"
+                                   Foreground="Gray" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="3" Margin="0 0 0 10">
+                        <TextBlock Text="Прогресс текущей операции:" Margin="0 0 0 4" />
+                        <ProgressBar Minimum="0" Maximum="100"
+                                     Height="18"
+                                     Value="{Binding Progress}" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="4">
+                        <TextBlock Text="Статус последнего запуска:" FontWeight="Bold" Margin="0 0 0 4" />
+                        <TextBlock Text="{Binding StatusText}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- Режимы проверки -->
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="⚙️" Margin="0 0 4 0" />
+                        <TextBlock Text="Режимы" />
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Выберите режим проверки .bat файлов:" FontWeight="Bold" />
+
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0 10 0 0" HorizontalAlignment="Left" >
+                        <Button Content="Проверить все"
+                                Width="150"
+                                Margin="0 0 10 0"
+                                Command="{Binding CheckAllCommand}" />
+
+                        <Button Content="Первый рабочий"
+                                Width="150"
+                                Command="{Binding FindFirstWorkingCommand}" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="2" Margin="0 10 0 0">
+                        <TextBlock Text="Прогресс:" Margin="0 0 0 4" />
+                        <ProgressBar Minimum="0" Maximum="100"
+                                     Height="18"
+                                     Value="{Binding Progress}" />
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="3">
+                        <TextBlock Text="Текущий статус:" Margin="0 0 0 4" />
+                        <TextBlock Text="{Binding StatusText}" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- Результаты -->
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="📋" Margin="0 0 4 0" />
+                        <TextBlock Text="Результаты" />
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <DataGrid Grid.Row="0"
+                              ItemsSource="{Binding Results}"
+                              AutoGenerateColumns="False"
+                              IsReadOnly="True"
+                              HeadersVisibility="Column"
+                              CanUserAddRows="False"
+                              Margin="0 0 0 10">
+                        <DataGrid.Resources>
+                            <Style TargetType="DataGridRow">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Status}" Value="Success">
+                                        <Setter Property="Background" Value="#E0FFE0" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Status}" Value="Error">
+                                        <Setter Property="Background" Value="#FFE0E0" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Status}" Value="Timeout">
+                                        <Setter Property="Background" Value="#FFF4E0" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.Resources>
+
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Имя"
+                                                Binding="{Binding FileName}"
+                                                Width="*" />
+                            <DataGridTextColumn Header="Статус"
+                                                Binding="{Binding Status}"
+                                                Width="120" />
+                            <DataGridTextColumn Header="Время ответа (мс)"
+                                                Binding="{Binding ElapsedMilliseconds, StringFormat={}{0:F0}}"
+                                                Width="150" />
+                            <DataGridTextColumn Header="Путь"
+                                                Binding="{Binding FullPath}"
+                                                Width="2*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <Button Grid.Row="1"
+                            Content="Открыть папку с рабочими файлами"
+                            HorizontalAlignment="Left"
+                            Padding="10,4"
+                            IsEnabled="False" />
+                </Grid>
+            </TabItem>
+
+            <!-- Настройки -->
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🔧" Margin="0 0 4 0" />
+                        <TextBlock Text="Настройки" />
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Margin="10">
+                    <TextBlock Text="Настройки автозапуска и безопасности будут реализованы во внешнем интерфейсе."
+                               TextWrapping="Wrap" />
+                </Grid>
+            </TabItem>
+
+            <!-- Логи -->
+            <TabItem>
+                <TabItem.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="📝" Margin="0 0 4 0" />
+                        <TextBlock Text="Логи" />
+                    </StackPanel>
+                </TabItem.Header>
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <ListBox Grid.Row="0"
+                             ItemsSource="{Binding Logs}">
+                        <ListBox.Template>
+                            <ControlTemplate TargetType="ListBox">
+                                <Border BorderBrush="LightGray" BorderThickness="1">
+                                    <ScrollViewer x:Name="ScrollViewer"
+                                                  VerticalScrollBarVisibility="Auto">
+                                        <ItemsPresenter />
+                                    </ScrollViewer>
+                                </Border>
+                            </ControlTemplate>
+                        </ListBox.Template>
+                    </ListBox>
+
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0 8 0 0" HorizontalAlignment="Left">
+                        <Button Content="Очистить"
+                                Width="100"
+                                IsEnabled="False" />
+                        <Button Content="Сохранить в файл"
+                                Width="140"
+                                Margin="10 0 0 0"
+                                IsEnabled="False" />
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <!-- Статус-бар -->
+        <StatusBar Grid.Row="4">
+            <StatusBarItem>
+                <StackPanel Orientation="Horizontal">
+                    <Ellipse Width="10" Height="10" Fill="#22c55e" Margin="0 0 6 0" />
+                    <TextBlock Text="Интернет: Подключено" />
+                </StackPanel>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right">
+                <TextBlock Text="Версия: 1.0.0" />
+            </StatusBarItem>
+        </StatusBar>
+    </Grid>
+</Window>
