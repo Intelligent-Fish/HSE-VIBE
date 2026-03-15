@@ -1,4 +1,3 @@
-```markdown
 <div align="center">
 
 # 🛡️ Zapret GUI
@@ -46,7 +45,7 @@
 ```bash
 # Пример для Windows (PowerShell)
 winget install zapret-gui
-```
+
 
 ### 2. Запуск
 Просто запустите исполняемый файл. Программа запросит права администратора для настройки сетевых правил.
