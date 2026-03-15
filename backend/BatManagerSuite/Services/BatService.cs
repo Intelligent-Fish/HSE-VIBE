@@ -18,8 +18,11 @@ public class BatService : IBatService
     private readonly ILogService _logService;
     private static readonly HttpClient HttpClient = new()
     {
-        Timeout = TimeSpan.FromSeconds(4)
+        Timeout = Timeout.InfiniteTimeSpan
     };
+
+    private Process? _persistentProcess;
+    private static bool _isFirstNetworkCheck = true;
 
     public BatService(AppPaths paths, ILogService logService)
     {
@@ -66,10 +69,6 @@ public class BatService : IBatService
             StartPersistent(best.FullPath);
             var message = $"Запущен самый быстрый файл: {best.FileName} ({best.Elapsed.TotalMilliseconds:F0} мс).";
             _logService.Info(message);
-            Application.Current.Dispatcher.Invoke(() =>
-            {
-                MessageBox.Show(message, "BatManager", MessageBoxButton.OK, MessageBoxImage.Information);
-            });
         }
 
         return results;
@@ -105,10 +104,6 @@ public class BatService : IBatService
                 StartPersistent(result.FullPath);
                 var message = $"Найден рабочий файл: {result.FileName}. Поиск остановлен.";
                 _logService.Info(message);
-                Application.Current.Dispatcher.Invoke(() =>
-                {
-                    MessageBox.Show(message, "BatManager", MessageBoxButton.OK, MessageBoxImage.Information);
-                });
 
                 return result;
             }
@@ -125,7 +120,9 @@ public class BatService : IBatService
             return Array.Empty<string>();
         }
 
-        return Directory.EnumerateFiles(_paths.CacheDirectory, "*.bat", SearchOption.AllDirectories);
+        return Directory
+            .EnumerateFiles(_paths.CacheDirectory, "*.bat", SearchOption.AllDirectories)
+            .Where(p => !string.Equals(Path.GetFileName(p), "service.bat", StringComparison.OrdinalIgnoreCase));
     }
 
     private static async Task<BatResult> RunOnceAsync(string path, CancellationToken cancellationToken)
@@ -161,7 +158,7 @@ public class BatService : IBatService
             return result;
         }
 
-        var timeout = TimeSpan.FromSeconds(4);
+        var timeout = _isFirstNetworkCheck ? TimeSpan.FromSeconds(20) : TimeSpan.FromSeconds(4);
 
         try
         {
@@ -183,37 +180,38 @@ public class BatService : IBatService
             }
             else
             {
-                if (process.ExitCode != 0)
+                // После завершения bat-файла в любом случае меряем доступность YouTube.
+                // Старт таймера строго в момент отправки запроса.
+                var swHttp = Stopwatch.StartNew();
+                try
                 {
-                    result.Status = BatStatus.Error;
-                    result.Elapsed = timeout;
-                }
-                else
-                {
-                    // батник отработал, теперь меряем доступность YouTube
-                    var swHttp = Stopwatch.StartNew();
-                    try
-                    {
-                        using var response = await HttpClient.GetAsync("https://www.youtube.com/", cancellationToken);
-                        swHttp.Stop();
+                    using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                    cts.CancelAfter(timeout);
 
-                        if (response.IsSuccessStatusCode && swHttp.Elapsed <= timeout)
-                        {
-                            result.Status = BatStatus.Success;
-                            result.Elapsed = swHttp.Elapsed;
-                        }
-                        else
-                        {
-                            result.Status = BatStatus.Timeout;
-                            result.Elapsed = swHttp.Elapsed > timeout ? timeout : swHttp.Elapsed;
-                        }
-                    }
-                    catch (Exception)
+                    var response = await HttpClient.GetAsync("https://www.youtube.com/", cts.Token);
+                    swHttp.Stop();
+
+                    // Успех: сам факт быстpого ответа, независимо от кода статуса.
+                    if (swHttp.Elapsed <= timeout && !cts.IsCancellationRequested)
                     {
-                        swHttp.Stop();
-                        result.Status = BatStatus.Error;
+                        result.Status = BatStatus.Success;
                         result.Elapsed = swHttp.Elapsed;
                     }
+                    else
+                    {
+                        result.Status = BatStatus.Timeout;
+                        result.Elapsed = swHttp.Elapsed > timeout ? timeout : swHttp.Elapsed;
+                    }
+                }
+                catch (Exception)
+                {
+                    swHttp.Stop();
+                    result.Status = BatStatus.Error;
+                    result.Elapsed = swHttp.Elapsed > timeout ? timeout : swHttp.Elapsed;
+                }
+                finally
+                {
+                    _isFirstNetworkCheck = false;
                 }
             }
         }
@@ -263,8 +261,21 @@ public class BatService : IBatService
         }
     }
 
-    private static void StartPersistent(string path)
+    private void StartPersistent(string path)
     {
+        try
+        {
+            if (_persistentProcess is { HasExited: false })
+            {
+                _persistentProcess.Kill();
+                _persistentProcess.Dispose();
+            }
+        }
+        catch
+        {
+            // ignored
+        }
+
         var psi = new ProcessStartInfo
         {
             FileName = path,
@@ -272,7 +283,7 @@ public class BatService : IBatService
             CreateNoWindow = false
         };
 
-        Process.Start(psi);
+        _persistentProcess = Process.Start(psi);
     }
 }
 

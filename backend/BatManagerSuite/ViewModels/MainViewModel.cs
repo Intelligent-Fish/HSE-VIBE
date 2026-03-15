@@ -19,6 +19,7 @@ public class MainViewModel : INotifyPropertyChanged
     private string _statusText = "Ожидание";
     private string _currentMode = "Ожидание";
     private bool _isBusy;
+    private bool _isOn;
     private CancellationTokenSource? _cts;
 
     public ObservableCollection<BatResult> Results { get; } = new();
@@ -68,6 +69,20 @@ public class MainViewModel : INotifyPropertyChanged
         }
     }
 
+    public bool IsOn
+    {
+        get => _isOn;
+        set
+        {
+            if (value == _isOn) return;
+            _isOn = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(AcceleratorStatusText));
+        }
+    }
+
+    public string AcceleratorStatusText => IsOn ? "Ускоритель включен" : "Ускоритель выключен";
+
     public ICommand CheckAllCommand { get; }
     public ICommand FindFirstWorkingCommand { get; }
 
@@ -110,6 +125,9 @@ public class MainViewModel : INotifyPropertyChanged
                     Results.Add(r);
                 }
             });
+
+            // включаем индикатор, если есть хотя бы один успешный файл
+            IsOn = results.Any(r => r.Status == BatStatus.Success);
         }
         finally
         {
@@ -140,6 +158,7 @@ public class MainViewModel : INotifyPropertyChanged
             {
                 App.Current.Dispatcher.Invoke(() => Results.Add(result));
             }
+            IsOn = result is { Status: BatStatus.Success };
         }
         finally
         {

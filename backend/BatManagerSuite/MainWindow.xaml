@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:BatManagerSuite"
         mc:Ignorable="d"
         Title="добрый запрет" Height="650" Width="950"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        Background="#f3f4f6">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />   <!-- Header -->
@@ -47,48 +48,61 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <Grid HorizontalAlignment="Center" Margin="0 10 0 4">
-                <Border Width="220"
+            <Grid HorizontalAlignment="Center" Margin="0 20 0 4">
+                <Border Width="260"
+                        Height="260"
+                        CornerRadius="130"
+                        Background="#f3f4f6"
+                        BorderBrush="#e5e7eb"
+                        BorderThickness="1" />
+                    <Border Width="220"
                         Height="220"
-                        CornerRadius="110"
-                        Background="#f97316"
-                        Opacity="0.15" />
-                <Border Width="200"
-                        Height="200"
-                        CornerRadius="100"
-                        Background="#111827">
-                    <Button Command="{Binding CheckAllCommand}"
-                            Background="Transparent"
-                            BorderThickness="0"
-                            Cursor="Hand">
+                        CornerRadius="110">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Background" Value="#111827" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsOn}" Value="True">
+                                    <Setter Property="Background" Value="#16a34a" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <Button Command="{Binding CheckAllCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="OverridesDefaultStyle" Value="True" />
+                                <Setter Property="Background" Value="Transparent" />
+                                <Setter Property="BorderThickness" Value="0" />
+                                <Setter Property="Cursor" Value="Hand" />
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <ContentPresenter HorizontalAlignment="Center"
+                                                              VerticalAlignment="Center" />
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
                         <Grid>
-                            <Ellipse Width="120"
-                                     Height="120"
+                            <Ellipse Width="140"
+                                     Height="140"
                                      Fill="#10ffffff" />
-                            <Path Data="M18.36 6.64a9 9 0 1 1-12.73 0"
-                                  Stroke="White"
-                                  StrokeThickness="3"
-                                  StrokeEndLineCap="Round"
-                                  StrokeStartLineCap="Round"
-                                  Stretch="None"
-                                  RenderTransformOrigin="0.5,0.5" />
-                            <Line X1="0" Y1="20" X2="0" Y2="-20"
-                                  Stroke="White"
-                                  StrokeThickness="3"
-                                  StrokeEndLineCap="Round"
-                                  StrokeStartLineCap="Round"
-                                  RenderTransformOrigin="0.5,0.5">
-                                <Line.RenderTransform>
-                                    <RotateTransform Angle="90" />
-                                </Line.RenderTransform>
-                            </Line>
+                            <!-- Стандартный значок питания Segoe MDL2 -->
+                            <TextBlock Text=""
+                                       FontFamily="Segoe MDL2 Assets"
+                                       Foreground="White"
+                                       FontSize="64"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
                         </Grid>
                     </Button>
                 </Border>
             </Grid>
 
             <TextBlock Grid.Row="1"
-                       Text="{Binding CurrentMode, FallbackValue=Ожидание}"
+                       Text="{Binding AcceleratorStatusText}"
                        HorizontalAlignment="Center"
                        Foreground="#4b5563"
                        FontSize="14" />
@@ -129,8 +143,14 @@
             </Border>
         </StackPanel>
 
-        <!-- Основное содержимое: вкладки -->
-        <TabControl Grid.Row="3" Margin="10 0 10 0">
+        <!-- Основное содержимое: вкладки в "карточке" как на скриншотах -->
+        <Border Grid.Row="3"
+                Margin="40 0 40 0"
+                Background="White"
+                CornerRadius="18"
+                BorderBrush="#e5e7eb"
+                BorderThickness="1">
+            <TabControl Margin="10 0 10 10">
             <!-- Дашборд -->
             <TabItem>
                 <TabItem.Header>
@@ -340,7 +360,8 @@
                     </StackPanel>
                 </Grid>
             </TabItem>
-        </TabControl>
+            </TabControl>
+        </Border>
 
         <!-- Статус-бар -->
         <StatusBar Grid.Row="4">
