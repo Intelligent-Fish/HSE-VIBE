@@ -1,0 +1,21 @@
+{
+    "name": "dobri-zapret",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+        "dev:frontend": "cd frontend && npm run dev",
+        "dev:backend": "cd backend && npm run dev"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "module",
+    "devDependencies": {
+        "concurrently": "^9.2.1"
+    },
+    "dependencies": {
+        "@tailwindcss/vite": "^4.2.1"
+    }
+}
